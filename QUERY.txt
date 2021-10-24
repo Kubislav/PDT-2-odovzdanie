@@ -1,0 +1,134 @@
+-- 1
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts
+--WHERE accounts.screen_name = 'realDonaldTrump'
+
+--2
+
+--SET max_parallel_workers_per_gather = 1000;
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts
+--WHERE accounts.screen_name = 'realDonaldTrump'
+
+--3
+
+--CREATE INDEX screen_name_idx ON accounts(screen_name);
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts WHERE screen_name = 'realDonaldTrump';
+
+
+--4
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts 
+--WHERE followers_count >= 100 AND followers_count<=200;
+
+--5
+--CREATE INDEX followers_count_idx ON accounts(followers_count);
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts 
+--WHERE followers_count >= 100 AND followers_count<=200;
+
+--6
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts 
+--WHERE followers_count >= 100 AND followers_count <= 1000;
+
+
+--7
+--CREATE INDEX name_idx ON accounts(name);
+--CREATE INDEX friends_count_idx ON accounts(friends_count);
+--CREATE INDEX description_idx ON accounts(name);
+--EXPLAIN (ANALYZE,BUFFERS) INSERT INTO accounts(name,screen_name,description, followers_count, friends_count, statuses_count) 
+--VALUES ('Michael Jordan', 'Russian President', 'https://www.youtube.com/watch?v=wpyNaifejf0', 18, 489, 4900);
+
+--DROP INDEX name_idx;
+--DROP INDEX friends_count_idx;
+--DROP INDEX description_idx;
+--EXPLAIN ANALYSE INSERT INTO accounts(name,screen_name,description, followers_count, friends_count, statuses_count) 
+--VALUES ('generic name', 'generic screen name', 'generic description', 889, 58, 785); 
+
+
+--8
+--CREATE INDEX retweet_count_idx ON tweets(retweet_count);
+--CREATE INDEX content_idx ON tweets(content);
+--9
+--SELECT * FROM bt_metap('retweet_count_idx');
+--SELECT * FROM bt_metap('content_idx');
+--SELECT * FROM bt_metap('screen_name_idx');
+--SELECT * FROM bt_metap('retweet_count_idx');
+
+--SELECT type, live_items, dead_items, avg_item_size, page_size, free_size 
+--FROM bt_page_stats('retweet_count_idx',1000);
+
+--SELECT type, live_items, dead_items, avg_item_size, page_size, free_size 
+--FROM bt_page_stats('content_idx',1000);
+
+--SELECT type, live_items, dead_items, avg_item_size, page_size, free_size 
+--FROM bt_page_stats('screen_name_idx',1000);
+
+--SELECT type, live_items, dead_items, avg_item_size, page_size, free_size 
+--FROM bt_page_stats('followers_count_idx',1000);
+
+
+--SELECT itemoffset, itemlen, data 
+--FROM bt_page_items('retweet_count_idx',1) LIMIT 1000;
+
+--SELECT itemoffset, itemlen, data 
+--FROM bt_page_items('content_idx',1) LIMIT 1000;
+
+--SELECT itemoffset, itemlen, data 
+--FROM bt_page_items('screen_name_idx',1) LIMIT 1000;
+
+--SELECT itemoffset, itemlen, data 
+--FROM bt_page_items('followers_count_idx',1) LIMIT 1000;
+
+--10
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * 
+--FROM tweets WHERE tweets.content LIKE '%Gates%';
+
+--CREATE INDEX tweet_content_idx ON tweets(content);
+--EXPLAIN ANALYSE SELECT * FROM tweets WHERE tweets.content LIKE '%Gates%';
+
+--11
+
+--EXPLAIN ANALYSE SELECT * FROM tweets 
+--WHERE tweets.content LIKE 'The Cabel and Deep State%';
+
+--12
+--DROP INDEX tweet_content_idx;
+--CREATE INDEX tweet_content_like_idx ON tweets(content TEXT_PATTERN_OPS);
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM tweets WHERE tweets.content LIKE 'The Cabel and Deep State”%'
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM tweets WHERE tweets.content LIKE '%Gates%'
+
+--13
+
+--DROP INDEX tweet_content_like_idx;
+--CREATE INDEX tweets_content_like_case_insensitive_idx ON tweets(reverse(lower(content)) TEXT_PATTERN_OPS);
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM tweets WHERE reverse(lower(content)) LIKE reverse(lower('%idiot #QAnon“'));
+
+--14
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts WHERE followers_count < 10 AND friends_count > 1000 ORDER BY statuses_count;
+--CREATE INDEX accounts_followers_idx ON accounts(followers_count);
+--CREATE INDEX accounts_friends_idx ON accounts (friends_count);
+--CREATE INDEX accounts_statuses_idx  ON  accounts(statuses_count);
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts 
+--WHERE followers_count < 10 AND friends_count > 1000 
+--ORDER BY statuses_count;
+
+--15
+
+--DROP INDEX accounts_followers_idx;
+--DROP INDEX accounts_friends_idx;
+--DROP INDEX accounts_statuses_idx;
+--CREATE INDEX accounts_trio_idx ON accounts(followers_count, friends_count, statuses_count);
+
+--EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts 
+--WHERE followers_count < 10 AND friends_count > 1000 ORDER BY statuses_count;
+
+
+
+--16
+EXPLAIN (ANALYZE,BUFFERS) SELECT * FROM accounts
+WHERE followers_count < 1000 AND friends_count > 1000 ORDER BY statuses_count;
+--17
+
+--18
